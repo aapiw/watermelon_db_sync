@@ -1,36 +1,64 @@
 
 # WatermelonDbSync
 
-TODO: Delete this and the text below, and describe your gem
+Make synchronize pull & push easier & faster.
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/watermelon_db_sync`. To experiment with that code, run `bin/console` for an interactive prompt.
+This gem is built to handle synchronize between pull & push with [WatermelonDb](https://github.com/Nozbe/WatermelonDB) even you are use different library and keep the synchronization throguh API then you can use this gem, basically this gem follows this article to handle the sync [How to Build WatermelonDB Sync Backend in Elixir](https://fahri.id/posts/how-to-build-watermelondb-sync-backend-in-elixir) which is using Auto-incrementing Counter (Version) + Timestamp for Tracking Changes approach, but this is a Ruby version of it
+
+## Features
+
+- Seamless sync between WatermelonDB and Rails through API endpoint.
+- Customizable sync strategies.
+- Easy integration with existing Rails applications.
+- Supported Postgresql
+
+
+# WatermelonDB Sync
 
 ## Installation
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
+Add this line to your application's Gemfile:
 
-Install the gem and add to the application's Gemfile by executing:
+```ruby
+gem 'watermelon_db_sync'
+```
 
-    $ bundle add UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+You can find the gem on [RubyGems](https://rubygems.org/gems/watermelon_db_sync).
 
-If bundler is not being used to manage dependencies, install the gem by executing:
+After updating the Gemfile, run:
 
-    $ gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+```bash
+$ bundle install
+```
 
-## Usage
+Or, install the gem manually using:
 
-TODO: Write usage instructions here
+```bash
+$ gem install watermelon_db_sync
+```
 
-## Development
+## Getting Started
 
-After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+To set up the gem, you need to run the installation generator:
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+```bash
+rails generate watermelon_db_sync:install
+```
+
+This will:
+- Create an initializer at `config/initializers/watermelon_db_sync.rb` where all configuration options are described.
+- Generate a migration to create a global sequence table: `db/migrate/[timestamp]_create_sequence.rb`.
+
+### Adding Sync Fields to a Model
+
+Once you have the basic setup, you can add sync fields to an existing model. This assumes that the table (e.g., `orders`) already exists in your database. To add sync fields, run:
+
+```bash
+rails generate watermelon_db_sync:add_sync_fields Order
+```
+
+This will generate a migration that adds the necessary sync fields to the `orders` table.
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/watermelon_db_sync. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/watermelon_db_sync/blob/master/CODE_OF_CONDUCT.md).
-
-## Code of Conduct
-
-Everyone interacting in the WatermelonDbSync project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/watermelon_db_sync/blob/master/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at https://github.com/aapiw/watermelon_db_sync. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/aapiw/watermelon_db_sync/blob/master/CODE_OF_CONDUCT.md).
