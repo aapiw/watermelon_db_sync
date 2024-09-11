@@ -10,7 +10,7 @@ module WatermelonDbSync::Generators
     end
 
       def copy_migrations
-        migration_template "create_sequence.rb", "db/migrate/create_sequence.rb"
+        migration_template "create_sequence.rb", "db/migrate/create_global_seqs.rb"
       end
 
       def self.next_migration_number(dirname)

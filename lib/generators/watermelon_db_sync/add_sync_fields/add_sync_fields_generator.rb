@@ -18,8 +18,6 @@ module WatermelonDbSync::Generators
         Time.now.utc.strftime("%Y%m%d%H%M%S")
       end
 
-      private
-
       # Generates the migration file name based on the model name
       def migration_file_name
         "add_sync_fields_to_#{model_name.tableize}"
@@ -27,7 +25,7 @@ module WatermelonDbSync::Generators
 
       # Generates the migration class name to use in the template
       def migration_class_name
-        "AddSyncFieldsTo#{model_name.camelize}"
+        "AddSyncFieldsTo#{model_name.tableize.camelize}"
       end
     
   end

@@ -1,4 +1,4 @@
 
 WatermelonDbSync.configure do |config|
-  config.sync_model = ["Order"]
+  config.sync_models = ["Order"]
 end

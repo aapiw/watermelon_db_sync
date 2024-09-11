@@ -42,7 +42,7 @@ $ gem install watermelon_db_sync
 To set up the gem, you need to run the installation generator:
 
 ```bash
-rails generate watermelon_db_sync:install
+rails g watermelon_db_sync:install
 ```
 
 This will:
@@ -54,10 +54,16 @@ This will:
 Once you have the basic setup, you can add sync fields to an existing model. This assumes that the table (e.g., `orders`) already exists in your database. To add sync fields, run:
 
 ```bash
-rails generate watermelon_db_sync:add_sync_fields Order
+rails g watermelon_db_sync:add_sync_fields Order
 ```
 
 This will generate a migration that adds the necessary sync fields to the `orders` table.
+
+Next run:
+
+```bash
+rails db:migrate
+```
 
 ## Contributing
 
