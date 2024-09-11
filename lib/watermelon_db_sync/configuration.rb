@@ -3,7 +3,7 @@ module WatermelonDbSync
     attr_accessor :sync_models
 
     def initialize
-      @sync_models = ['']
+      @sync_models = []
     end
   end
 end

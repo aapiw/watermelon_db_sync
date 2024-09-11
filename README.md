@@ -65,6 +65,57 @@ Next run:
 rails db:migrate
 ```
 
+## Usage
+```bash
+Pull:
+
+sync_pull = WatermelonDbSync::SyncPull.new(last_pulled_version: 0)
+sync_pull.pull
+sync_pull.data[:response]
+
+response:
+
+{:orders=>
+  {:created=>
+    [{"id"=>1,
+      "name"=>"asdasad",
+      "phone"=>nil,
+      "created_at"=>"2024-09-11T11:31:07.867Z",
+      "updated_at"=>"2024-09-11T11:43:06.214Z",
+      "version"=>1,
+      "version_created"=>2,
+      "created_at_server"=>"2024-09-11T11:31:07.869Z",
+      "updated_at_server"=>"2024-09-11T11:31:07.869Z",
+      "deleted_at_server"=>nil,
+      "push_id"=>nil}],
+   :deleted=>[],
+   :updated=>[]}}
+
+  Push:
+  data={
+    "orders": {
+      "created": [
+        {
+          "id": "1",
+          "name": "Cust 1"
+        }
+      ],
+      "updated": [
+        {
+          "id": "1",
+          "name": "Cust Edit"
+        }
+      ],
+      "deleted": []
+    }
+  }
+    sync_push = WatermelonDbSync::SyncPush.new(data)
+    sync_push.push
+    sync_push.data[:success]
+    => true
+```
+
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/aapiw/watermelon_db_sync. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/aapiw/watermelon_db_sync/blob/master/CODE_OF_CONDUCT.md).

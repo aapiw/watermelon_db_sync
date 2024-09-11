@@ -38,6 +38,9 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.2"
   spec.add_dependency "activesupport", "~> 7.0.8"
   spec.add_dependency "thor"
+  spec.add_development_dependency "debug"
+  spec.add_dependency 'acts_as_paranoid', '>= 0.6.0'  # Add acts_as_paranoid as a dependency
+
 
 
 
