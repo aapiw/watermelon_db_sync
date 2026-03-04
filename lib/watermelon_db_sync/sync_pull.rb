@@ -1,69 +1,88 @@
 module WatermelonDbSync
   class SyncPull < Sync
-    
     attr_accessor :last_pulled_version, :models, :data
 
     def initialize(params)
-      @last_pulled_version = params[:last_pulled_version] || 0
+      @last_pulled_version = params[:last_pulled_version].to_i || 0
       @push_id = params[:push_id]
-      @format_response = {created: [], updated: [], deleted: [] }
       @models = WatermelonDbSync.configuration.sync_models
-      @data = {last_global_seqs: 0, response: build_default_response}
+      @data = { last_global_seqs: 0, response: build_default_response }
     end
 
     def pull
-      self.get_from_all
+      get_from_all
     end
 
     def get_from_all
-      begin
-        max_list = []
-        @models.each do |model|
-          max_list << self.query(eval(model))
-        end
+      max_versions = @models.map do |model_name|
+        model = model_name.constantize
+        query(model)
+      end
 
-        @data[:last_global_seqs] = max_list.flatten.max || @last_pulled_version.to_i #Sync.last_global_seqs
-        return true
-      rescue => e
-        e.message
+      @data[:last_global_seqs] =
+        max_versions.flatten.compact.max || @last_pulled_version
+
+      true
+    rescue => e
+      e.message
+    end
+
+    private
+
+    def base_scope(model)
+      model.respond_to?(:with_deleted) ? model.with_deleted : model.all
+    end
+
+    def deleted_scope(model)
+      if model.respond_to?(:only_deleted)
+        model.only_deleted
+      else
+        model.where.not(deleted_at_server: nil)
       end
     end
 
-    # Filtered by push_id, for differentiate record just pushed
-    def query(model=nil)
+    def query(model)
+      scope = base_scope(model)
+        .where("version_created > ? OR version > ?", 
+               @last_pulled_version, @last_pulled_version)
 
-      all_with_deleted = model.with_deleted.where("version_created > #{@last_pulled_version} OR version > #{@last_pulled_version}")
-      max_list = all_with_deleted.pluck(:version, :version_created)
+      scope = scope.where("push_id != ? OR push_id IS NULL", @push_id) if @push_id.present?
 
-      all_with_deleted = all_with_deleted.where("push_id != ? or push_id is ?", @push_id, nil) if @push_id.present?
+      created = scope
+        .where(deleted_at_server: nil)
+        .where("version_created > ?", @last_pulled_version)
 
-      created = all_with_deleted.where(deleted_at_server: nil).where("version_created > #{@last_pulled_version}")
+      updated = scope
+        .where(deleted_at_server: nil)
+        .where("version > ? AND version_created <= ?", 
+               @last_pulled_version, @last_pulled_version)
 
-      updated = all_with_deleted.where(deleted_at_server: nil).where("created_at_server != updated_at_server")
-      new_updated = []
-      updated.each do |obj_updated|
-        new_updated << obj_updated unless created.map{|d|d.as_json}.include?(obj_updated.as_json)
-      end
-      
-      deleted = all_with_deleted.only_deleted
-      deleted = deleted.pluck(:id)
-      
-      @data[:response][model.table_name.to_sym][:created] = created&.as_json
-      @data[:response][model.table_name.to_sym][:updated] = new_updated&.as_json
-      @data[:response][model.table_name.to_sym][:deleted] = deleted&.as_json
-      
-      max_list
+      deleted = deleted_scope(model)
+        .where("version > ?", @last_pulled_version)
+        .pluck(:id)
+
+      table = model.table_name.to_sym
+
+      @data[:response][table][:created] = created.as_json
+      @data[:response][table][:updated] = updated.as_json
+      @data[:response][table][:deleted] = deleted
+
+      scope.pluck(:version, :version_created)
     end
 
     def build_default_response
-      default = Hash.new { |hash, key| hash[key] = {} }
-      @models.each do |model|
-        default[eval(model).table_name.to_sym][:created] = {}
-        default[eval(model).table_name.to_sym][:deleted] = {}
-        default[eval(model).table_name.to_sym][:updated] = {}
+      default = {}
+
+      @models.each do |model_name|
+        table = model_name.constantize.table_name.to_sym
+        default[table] = {
+          created: [],
+          updated: [],
+          deleted: []
+        }
       end
+
       default
     end
-
   end
 end
